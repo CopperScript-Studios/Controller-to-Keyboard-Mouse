@@ -5,6 +5,8 @@ import keyboard
 
 pyautogui.PAUSE = 0
 pydirectinput.PAUSE = 0
+pydirectinput.FAILSAFE = False
+pyautogui.FAILSAFE = False
 
 pygame.init()
 pygame.joystick.init()
@@ -18,30 +20,40 @@ if pygame.joystick.get_count() > 0:
 
     pressed_buttons = [False,False,False,False,False,None,None,False,None,None,None,None,None,None,None,False]
     pressed_axis = [[False,False],[False,False]]
+    pressed_mouse = [False,False,None,False]
     pressed_mouse_button_time = [0,0,None,0]
 
     while running:
         clock.tick(60)
         pygame.event.pump()
-
         ms = pygame.time.get_ticks()
-        hold_delay = 1
+        hold_delay = 0.5
 
-        mouse_buttons = ['left','right',None,'middle']
+        mouse_buttons = ['left', 'right', None, 'middle']
         for i in range(len(mouse_buttons)):
-            if mouse_buttons[i] == None:
+            if mouse_buttons[i] is None:
                 continue
-            if joystick.get_button(i) and not pressed_buttons[i]:
-                if abs(ms - pressed_mouse_button_time[i]) >= hold_delay * 1000:
+                
+            is_down = joystick.get_button(i)
+
+
+            if is_down and not pressed_buttons[i]:
+                pressed_buttons[i] = True
+                pressed_mouse_button_time[i] = ms
+                
+            elif is_down and pressed_buttons[i]:
+                if ms - pressed_mouse_button_time[i] >= hold_delay * 1000 and not pressed_mouse[i]:
                     pydirectinput.mouseDown(button=mouse_buttons[i])
-                    pressed_buttons[i] = True
+                    pressed_mouse[i] = True
+                    
+            elif not is_down and pressed_buttons[i]:
+                pressed_buttons[i] = False
+                
+                if pressed_mouse[i]:
+                    pydirectinput.mouseUp(button=mouse_buttons[i])
+                    pressed_mouse[i] = False
                 else:
                     pydirectinput.click(button=mouse_buttons[i])
-                    pressed_mouse_button_time[i] = ms
-            elif pressed_buttons[i]:
-                pydirectinput.mouseUp(button=mouse_buttons[i])
-                pressed_buttons[i] = False
-                pressed_mouse_button_time[i] = 0
 
         buttons = [None,None,'space',None,'delete',None,None,'shift',None,None,None,'up','down','left','right','escape']
         for i in range(len(buttons)):
@@ -75,10 +87,10 @@ if pygame.joystick.get_count() > 0:
             else:
                 if pressed_axis[axis][0]:
                     pressed_axis[axis][0] = False
-                    pydirectinput.keyUp('a')
+                    pydirectinput.keyUp(axis_index[axis][0])
                 if pressed_axis[axis][1]:
                     pressed_axis[axis][1] = False
-                    pydirectinput.keyUp('d')
+                    pydirectinput.keyUp(axis_index[axis][1])
 
         axis_cauculation(0)            
         axis_cauculation(1)
