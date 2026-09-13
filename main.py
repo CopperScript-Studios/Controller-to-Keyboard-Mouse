@@ -2,23 +2,6 @@ import pygame
 import pydirectinput
 import pyautogui
 import keyboard
-import os
-import ctypes
-
-import os
-import ctypes
-
-try:
-    # Per-Monitor DPI Aware V2
-    ctypes.windll.shcore.SetProcessDpiAwareness(2)
-except Exception:
-    try:
-        # Fallback for older Windows builds
-        ctypes.windll.user32.SetProcessDPIAware()
-    except Exception:
-        pass
-
-os.environ["SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS"] = "1"
 
 pyautogui.PAUSE = 0
 pydirectinput.PAUSE = 0
@@ -119,7 +102,7 @@ if pygame.joystick.get_count() > 0:
             elif media_tap_count >= 3:
                 keyboard.send('previous track')
             
-            media_tap_count = 0  # Reset tap counter
+            media_tap_count = 0
 
         movement_deadzone = 0.5
         axis_index = [['a','d'],['w','s']]
