@@ -18,7 +18,7 @@ if pygame.joystick.get_count() > 0:
     clock = pygame.time.Clock()
     running = True
 
-    pressed_buttons = [False,False,False,False,False,None,None,False,None,None,None,None,None,None,None,False]
+    pressed_buttons = [None,None,False,None,None,None,None,False]
     pressed_axis = [[False,False],[False,False]]
     pressed_mouse = [False,False,None,False]
     pressed_mouse_button_time = [0,0,None,0]
@@ -26,7 +26,7 @@ if pygame.joystick.get_count() > 0:
     while running:
         clock.tick(60)
         pygame.event.pump()
-        
+
         ms = pygame.time.get_ticks()
         hold_delay = 0.5
 
@@ -56,7 +56,7 @@ if pygame.joystick.get_count() > 0:
                 else:
                     pydirectinput.click(button=mouse_buttons[i])
 
-        buttons = [None,None,'space',None,'delete',None,None,'shift',None,None,None,'up','down','left','right','escape']
+        buttons = [None,None,None,None,'delete',None,None,None,None,None,None,'up','down','left','right','escape']
         for i in range(len(buttons)):
             if buttons[i] == None:
                 continue
@@ -66,6 +66,14 @@ if pygame.joystick.get_count() > 0:
             elif pressed_buttons[i]:
                 pydirectinput.keyUp(buttons[i])
                 pressed_buttons[i] = False
+
+        holdable_buttons = [None,None,'space',None,None,None,None,'shift']
+        for i in range(len(holdable_buttons)):
+            if holdable_buttons[i] == None:
+                continue
+            if joystick.get_button(i):
+                pydirectinput.click(holdable_buttons[i])
+
 
         movement_deadzone = 0.5
         axis_index = [['a','d'],['w','s']]
