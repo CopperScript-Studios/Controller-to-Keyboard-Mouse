@@ -60,19 +60,19 @@ if pygame.joystick.get_count() > 0:
         for i in range(len(buttons)):
             if buttons[i] == None:
                 continue
-            if joystick.get_button(i) and not pressed_buttons[i]:
-                pydirectinput.keyDown(buttons[i])
-                pressed_buttons[i] = True
-            elif pressed_buttons[i]:
-                pydirectinput.keyUp(buttons[i])
-                pressed_buttons[i] = False
+            if joystick.get_button(i):
+                pydirectinput.click(buttons[i])
 
         holdable_buttons = [None,None,'space',None,None,None,None,'shift']
         for i in range(len(holdable_buttons)):
             if holdable_buttons[i] == None:
                 continue
-            if joystick.get_button(i):
-                pydirectinput.click(holdable_buttons[i])
+            if joystick.get_button(i) and not pressed_buttons[i]:
+                pydirectinput.keyDown(holdable_buttons[i])
+                pressed_buttons[i] = True
+            elif pressed_buttons[i]:
+                pydirectinput.keyUp(holdable_buttons[i])
+                pressed_buttons[i] = False
 
 
         movement_deadzone = 0.5
