@@ -17,6 +17,7 @@ if pygame.joystick.get_count() > 0:
     running = True
 
     pressed_buttons = [False,False,False,False,False,None,None,False,None,None,None,None,None,None,None,False]
+    pressed_axis = [[False,False],[False,False]]
     pressed_mouse_button_time = [0,0,None,0]
 
     while running:
@@ -42,7 +43,7 @@ if pygame.joystick.get_count() > 0:
                 pressed_buttons[i] = False
                 pressed_mouse_button_time[i] = 0
 
-        buttons = [None,None,'space',None,'delete',None,None,'shift',None,None,None,None,None,None,None,'escape']
+        buttons = [None,None,'space',None,'delete',None,None,'shift',None,None,None,'up','down','left','right','escape']
         for i in range(len(buttons)):
             if buttons[i] == None:
                 continue
@@ -53,6 +54,34 @@ if pygame.joystick.get_count() > 0:
                 pydirectinput.keyUp(buttons[i])
                 pressed_buttons[i] = False
 
+        movement_deadzone = 0.5
+        axis_index = [['a','d'],['w','s']]
+
+        def axis_cauculation(axis: int):
+            if joystick.get_axis(axis) < -movement_deadzone:
+                if not pressed_axis[axis][0]:
+                    pressed_axis[axis][0] = True
+                    if pressed_axis[axis][1]:
+                        pydirectinput.keyUp(axis_index[axis][1])
+                    pressed_axis[axis][1] = False
+                    pydirectinput.keyDown(axis_index[axis][0])
+            elif joystick.get_axis(axis) > movement_deadzone:
+                if not pressed_axis[axis][1]:
+                    pressed_axis[axis][1] = True
+                    if pressed_axis[axis][0]:
+                        pydirectinput.keyUp(axis_index[axis][0])
+                    pressed_axis[axis][0] = False
+                    pydirectinput.keyDown(axis_index[axis][1])
+            else:
+                if pressed_axis[axis][0]:
+                    pressed_axis[axis][0] = False
+                    pydirectinput.keyUp('a')
+                if pressed_axis[axis][1]:
+                    pressed_axis[axis][1] = False
+                    pydirectinput.keyUp('d')
+
+        axis_cauculation(0)            
+        axis_cauculation(1)
 
         cam_x = joystick.get_axis(2)
         cam_y = joystick.get_axis(3)
