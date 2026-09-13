@@ -5,7 +5,19 @@ import keyboard
 import os
 import ctypes
 
-ctypes.windll.shcore.SetProcessDpiAwareness(2)
+import os
+import ctypes
+
+try:
+    # Per-Monitor DPI Aware V2
+    ctypes.windll.shcore.SetProcessDpiAwareness(2)
+except Exception:
+    try:
+        # Fallback for older Windows builds
+        ctypes.windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
+
 os.environ["SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS"] = "1"
 
 pyautogui.PAUSE = 0
@@ -23,10 +35,16 @@ if pygame.joystick.get_count() > 0:
     clock = pygame.time.Clock()
     running = True
 
+    media_button_index = 5
+    media_tap_count = 0
+    last_media_tap_time = 0
+    media_tap_timeout = 300
+
     pressed_buttons = [None,None,False,None,None,None,None,False]
     pressed_axis = [[False,False],[False,False]]
     pressed_mouse = [False,False,None,False]
     pressed_mouse_button_time = [0,0,None,0]
+    media_button_pressed = False
 
     while running:
         clock.tick(60)
@@ -39,20 +57,17 @@ if pygame.joystick.get_count() > 0:
         for i in range(len(mouse_buttons)):
             if mouse_buttons[i] is None:
                 continue
-                
-            is_down = joystick.get_button(i)
 
-
-            if is_down and not pressed_buttons[i]:
+            if joystick.get_button(i) and not pressed_buttons[i]:
                 pressed_buttons[i] = True
                 pressed_mouse_button_time[i] = ms
                 
-            elif is_down and pressed_buttons[i]:
+            elif joystick.get_button(i) and pressed_buttons[i]:
                 if ms - pressed_mouse_button_time[i] >= hold_delay * 1000 and not pressed_mouse[i]:
                     pydirectinput.mouseDown(button=mouse_buttons[i])
                     pressed_mouse[i] = True
                     
-            elif not is_down and pressed_buttons[i]:
+            elif not joystick.get_button(i) and pressed_buttons[i]:
                 pressed_buttons[i] = False
                 
                 if pressed_mouse[i]:
@@ -89,6 +104,22 @@ if pygame.joystick.get_count() > 0:
                 pydirectinput.keyUp(holdable_buttons[i])
                 pressed_buttons[i] = False
 
+        if joystick.get_button(5) and not media_button_pressed:
+            media_button_pressed = True
+            media_tap_count += 1
+            last_media_tap_time = ms
+        elif not joystick.get_button(5) and media_button_pressed:
+            media_button_pressed = False
+
+        if media_tap_count > 0 and (ms - last_media_tap_time) > media_tap_timeout:
+            if media_tap_count == 1:
+                keyboard.send('play/pause media')
+            elif media_tap_count == 2:
+                keyboard.send('next track')
+            elif media_tap_count >= 3:
+                keyboard.send('previous track')
+            
+            media_tap_count = 0  # Reset tap counter
 
         movement_deadzone = 0.5
         axis_index = [['a','d'],['w','s']]
