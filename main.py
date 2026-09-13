@@ -26,6 +26,7 @@ if pygame.joystick.get_count() > 0:
     while running:
         clock.tick(60)
         pygame.event.pump()
+        
         ms = pygame.time.get_ticks()
         hold_delay = 0.5
 
