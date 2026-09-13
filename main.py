@@ -56,12 +56,22 @@ if pygame.joystick.get_count() > 0:
                 else:
                     pydirectinput.click(button=mouse_buttons[i])
 
+        def on_screen_keyboard():
+            pydirectinput.keyDown('win')
+            pydirectinput.keyDown('ctrl')
+            pydirectinput.press('o')
+            pydirectinput.keyUp('ctrl')
+            pydirectinput.keyUp('win')
+
         buttons = [None,None,None,None,'delete',None,None,None,None,None,None,'up','down','left','right','escape']
         for i in range(len(buttons)):
             if buttons[i] == None:
                 continue
             if joystick.get_button(i):
-                pydirectinput.click(buttons[i])
+                if buttons[i] == 'on screen keyboard':
+                    on_screen_keyboard()
+                else:
+                    pydirectinput.click(buttons[i])
 
         holdable_buttons = [None,None,'space',None,None,None,None,'shift']
         for i in range(len(holdable_buttons)):
