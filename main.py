@@ -2,6 +2,11 @@ import pygame
 import pydirectinput
 import pyautogui
 import keyboard
+import os
+import ctypes
+
+ctypes.windll.shcore.SetProcessDpiAwareness(2)
+os.environ["SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS"] = "1"
 
 pyautogui.PAUSE = 0
 pydirectinput.PAUSE = 0
